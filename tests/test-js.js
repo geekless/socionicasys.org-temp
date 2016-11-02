@@ -1,7 +1,10 @@
 
-var tests = testData.split(/\n\n/m).map(function(text) {
+var tests = testData.split(/\n\n/m).map(function(text, index) {
 	var m = text.trim().match(/^([\s\S]+)\[([\s\S]+):([\s\S]+)\]$/m);
-	return {question: m[1], answer: m[2], comment: m[3]};
+	var question = (m[1] || "").trim().
+		replace(new RegExp('\n','g'), '<br>').
+		replace(new RegExp('^[ ]*' + (index + 1) + '\.[ ]*','m'), '');
+	return {question: question, answer: m[2], comment: m[3]};
 }).filter(function(t) {
 	return t.question && t.answer && t.comment;
 });
