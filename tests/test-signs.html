@@ -3,12 +3,37 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Тест на определение знаков функций</title>
+	<title></title>
 
 	<link href="https://fonts.googleapis.com/css?family=PT+Mono&amp;subset=cyrillic,cyrillic-ext" rel="stylesheet">
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script>
-		var testData = "\
+
+	var testId = 'testSigns';
+	var testTitle = 'Тест на определение знаков функций';
+	var optionsTitle = 'Укажите знак и аспект прочитанного текста:'
+
+	var possibleAnswers = []
+	possibleAnswers[0] = [
+		'+БИ',
+		'-БИ',
+		'+БЛ',
+		'-БЛ',
+		'+БС',
+		'-БС',
+		'+БЭ',
+		'-БЭ',
+		'+ЧИ',
+		'-ЧИ',
+		'+ЧЛ',
+		'-ЧЛ',
+		'+ЧС',
+		'-ЧС',
+		'+ЧЭ',
+		'-ЧЭ'
+	];
+
+	var testData = "\
 Таинственно шумит лесная тишина. <br>Незримо по лесам поет и бродит Осень... <br>Темнеет день за днем, - и вот опять слышна <br>Тоскующая песнь под звон угрюмых сосен. <br>«Пусть по ветру летит и кружится листва, <br>Пусть заметет она печальный след былого! <br>Надежда, грусть, любовь - вы, старые слова, <br>Как блеклая листва, не расцветете снова!» <br>Угрюмо бор гудит, несутся листья вдаль... <br>Но в шумном ропоте и песне безнадежной <br>Я слышу жалобу: в ней тихая печаль, <br>Укор былой весне, и ласковый, и нежный. <br>И далеко еще безмолвная зима... <br>Душа готова вновь волненьям предаваться,<br> И сладко ей грустить и грустью упиваться, <br>Не внемля голосу ума.<br>(Бунин)\n\
 [-ЧЭ: спокойное принятие функцией низкоэнергетического состояния]\n\
 \n\
@@ -73,26 +98,7 @@
 [-ЧИ: принятие как негативной, так и позитивной по качеству сущности людей]\n\
 		";
 
-	possibleAnswers = [
-		'+БИ',
-		'-БИ',
-		'+БЛ',
-		'-БЛ',
-		'+БС',
-		'-БС',
-		'+БЭ',
-		'-БЭ',
-		'+ЧИ',
-		'-ЧИ',
-		'+ЧЛ',
-		'-ЧЛ',
-		'+ЧС',
-		'-ЧС',
-		'+ЧЭ',
-		'-ЧЭ'
-	];
 
-	var testId = 'testSigns';
 
 	var tests = testData.split(/\n\n/m).map(function(text) {
 		var m = text.trim().match(/^([\s\S]+)\[([\s\S]+):([\s\S]+)\]$/m);
@@ -128,9 +134,15 @@
 		$('#question-title').html("Вопрос №" + (nr + 1) + ":");
 		$('#question-body').html(tests[nr].question);
 
-		$('#options-body').html(possibleAnswers.map(function(answer){
-			return "<a href='#' onclick='doAnswer(\"" + answer + "\")'>" + answer + "</a>"
-		}).join(''))
+		$('#options-body').html(possibleAnswers.map(function(answers, sectionIndex){
+			return (
+				'<span class="section" id="options-section-' + sectionIndex + '">' + 
+				answers.map(function(answer, answerIndex){
+					return "<a href='#' id='option-" + sectionIndex + "-" + answerIndex + "' onclick='doAnswer(" + sectionIndex + ", " + answerIndex + "); return false;'>" + answer + "</a>"
+				}).join('') +
+				'</span>'
+			);
+		}).join(''));
 
 		if (nr > 0) {
 			$('#step-back').removeClass('display-none');
@@ -145,6 +157,15 @@
 		$('#test-wrapper').addClass('visible').removeClass('hidden');
 	}
 
+	function answersEqual(a1, a2) {
+		if (a1 == a2)
+			return true;
+
+		a1 = a1.split(/, /).sort().join(', ');
+		a2 = a2.split(/, /).sort().join(', ');
+		return a1 == a2;
+	}
+
 	function displayResults() {
 		var s = '';
 		var s1 = '';
@@ -153,7 +174,7 @@
 			s += '<div class="result">';
 			s += '<p class="question-title"> Вопрос №' + (nr + 1) + ':</p>';
 			s += '</div>';
-			if (tests[nr].answer == collectedAnswers[nr]) {
+			if (answersEqual(tests[nr].answer, collectedAnswers[nr])) {
 				s +=
 					'<p class="answer-body">' + 
 					'<span class="correct">Вы ответили правильно:</span> ' +
@@ -167,8 +188,8 @@
 					'<p class="answer-body">' + 
 					'<span class="wrong">Вы ответили неправильно: </span> ' +
 					'<span class="answer">' + collectedAnswers[nr] + '</span><br>' +
-					'Правильный ответ: <span class="answer">' + tests[nr].answer + '</span> — ' +
-					'<span class="comment">' + tests[nr].comment + '</span>' +
+					'Правильный ответ: <span class="answer">' + tests[nr].answer + '</span>' +
+					(tests[nr].comment ? ' — <span class="comment">' + tests[nr].comment + '</span>' : '') +
 					'</p>';
 				s1 +=
 					'<li class="answer">' +
@@ -218,10 +239,18 @@
 		setTimeout(updateInteface, 500);
 	}
 
-	function doAnswer(answer) {
-		collectedAnswers[currentQuestion] = answer;
-		currentQuestion++;
-		react();
+	function doAnswer(sectionIndex, answerIndex) {
+		$('#options-section-' + sectionIndex + ' a').removeClass('selected');
+		$('#option-' + sectionIndex + '-' + answerIndex).addClass('selected');
+
+		var selected = $('#options-body a.selected');
+		if (selected.length == possibleAnswers.length) {
+			collectedAnswers[currentQuestion] = selected.map(function() {
+				return $(this).html();
+			}).get().sort().join(', ');
+			currentQuestion++;
+			react();
+		}
 	}
 
 	function stepBack() {
@@ -237,6 +266,9 @@
 	}
 
 	$(document).ready(function() {
+		$('#test-title').html(testTitle);
+		document.title = testTitle;
+		$('#options-title').html(optionsTitle);
 		updateInteface();
 	});
 
@@ -262,6 +294,11 @@
 		line-height: 130%;
 	}
 
+	#options-body .section {
+		display: block;
+		text-align: center;
+	}
+
 	#options-body a,
 	.button {
 		display: inline-block;
@@ -273,6 +310,13 @@
 		text-decoration: none;
 		color: #000 !important;
 		font-family: "PT Mono", monospace;
+		background-color: #fff;
+		transition: background-color 0.2s, color 0.2s;
+	}
+
+	#options-body a.selected {
+		background-color: #444;
+		color: #fff !important;
 	}
 
 	#results-wrapper .total-nr {
@@ -329,7 +373,7 @@
 
 <body>
 
-<h1>Тест на определение знаков функций</h1>
+<h1 id='test-title'></h1>
 
 <div id='test-wrapper' class='hidden'>
 
@@ -337,7 +381,7 @@
 		<p id='question-title'></p>
 		<p id='question-body'></p>
 
-		<p id='options-title'>Выберите вариант ответа:</p>
+		<p id='options-title'></p>
 
 		<p id='options-body'></p>
 	</div>
