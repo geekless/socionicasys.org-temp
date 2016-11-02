@@ -147,6 +147,7 @@
 
 	function displayResults() {
 		var s = '';
+		var s1 = '';
 		var correctAnswers = 0;
 		for (var nr = 0; nr < tests.length; nr++) {
 			s += '<div class="result">';
@@ -159,6 +160,7 @@
 					'<span class="answer">' + tests[nr].answer + '</span> — ' +
 					'<span class="comment">' + tests[nr].comment + '</span>' +
 					'</p>';
+				s1 += '<li class="answer"><span class="correct">' + tests[nr].answer + '</span></li>';
 				correctAnswers++;
 			} else {
 				s +=
@@ -168,6 +170,11 @@
 					'Правильный ответ: <span class="answer">' + tests[nr].answer + '</span> — ' +
 					'<span class="comment">' + tests[nr].comment + '</span>' +
 					'</p>';
+				s1 +=
+					'<li class="answer">' +
+					'<span class="wrong"><s>' + collectedAnswers[nr] + '</s></span> → ' +
+					'<span class="correct">' + tests[nr].answer + '</span>' +
+					'</li>';
 			}
 
 			s += '<p class="question-body">' + tests[nr].question + '</p>';
@@ -177,8 +184,10 @@
 			'<p class="total-nr"> Вы ответили правильно на ' +
 				correctAnswers + ' ' +
 				matchNumeral(correctAnswers, 'вопрос', 'вопроса', 'вопросов') +
-				' из ' + tests.length +
-			'</p>' + s;
+				' из ' + tests.length + ':' + 
+			'</p>' +
+			'<ol>' + s1 + '</ol>' +
+			s;
 
 		$('#results-wrapper').html(s);
 
