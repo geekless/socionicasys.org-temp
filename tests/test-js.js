@@ -16,13 +16,14 @@ var currentQuestion = 0;
 var collectedAnswers = [];
 var answerTries = [];
 
+/* disable state persistence
 if (localStorage) {
 	currentQuestion = +(localStorage[testId + '.currentQuestion'] || 0);
 	collectedAnswers = (localStorage[testId + '.collectedAnswers'] || "").split(/[@][@][@]/);
 	answerTries = (localStorage[testId + '.answerTries'] || "").split(/[@][@][@]/).map(function (v) {
 		return +v;
 	});
-}
+}*/
 
 var onPopupHideOneShot = null;
 var answerIsCorrect = false;
