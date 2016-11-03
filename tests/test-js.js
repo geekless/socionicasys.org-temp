@@ -1,5 +1,6 @@
 
 var displayInstantResult = true;
+var autoAdvanceTimeout = 0;
 
 var tests = testData.split(/\n\n/m).map(function(text, index) {
 	var m = text.trim().match(/^([\s\S]+)\[([\s\S]+):([\s\S]+)\]$/m);
@@ -160,7 +161,7 @@ function displayResults() {
 			'Вы ответили правильно на ' +
 			correctAnswers + ' ' +
 			matchNumeral(correctAnswers, 'вопрос', 'вопроса', 'вопросов') +
-			' из ' + tests.length + ':'
+			' из ' + tests.length + ':';
 	} else {
 		s2 =
 			'Из ' + tests.length + matchNumeral(tests.length, ' вопроса', ' вопросов', ' вопросов') +
@@ -217,6 +218,9 @@ function skipQuestion() {
 	hidePopup();
 }
 
+function nextQuestion() {
+	hidePopup();
+}
 
 
 function doAnswer(sectionIndex, answerIndex) {
@@ -235,16 +239,26 @@ function doAnswer(sectionIndex, answerIndex) {
 			answerIsCorrect = answersEqual(tests[currentQuestion].answer, collectedAnswers[currentQuestion]);
 			advanceOnPopupHide = answerIsCorrect;
 			if (answerIsCorrect) {
+				var advanceButton = '';
+				if (!autoAdvanceTimeout) {
+					advanceButton = 
+						'<p>' + 
+						"<a class='button' href='#' onclick='nextQuestion(); return false;' id='next-question'>Продолжить</a>" +
+						'</p>';
+				}
 				displayPopup(
 					'<p>' + 
 					'<span class="correct">Вы ответили правильно!</span><br>' +
 					'<span class="answer">' + tests[currentQuestion].answer + '</span>' +
 					(tests[currentQuestion].comment ? ' — <span class="comment">' + tests[currentQuestion].comment + '</span>' : '') + 
-					'</p>'
+					'</p>' +
+					advanceButton
 				);
-				intervalID = setInterval(function() {
-					hidePopup();
-				}, 3000);
+				if (autoAdvanceTimeout) {
+					intervalID = setTimeout(function() {
+						hidePopup();
+					}, autoAdvanceTimeout);
+				}
 			} else {
 				displayPopup(
 					'<p>' + 
