@@ -124,7 +124,7 @@ function displayResults() {
 	$('#test-wrapper').addClass('visible').removeClass('hidden');
 }
 
-function updateInteface() {
+function updateInterface() {
 	if (currentQuestion >= tests.length) {
 		displayResults();
 	} else {
@@ -140,7 +140,7 @@ function react() {
 		localStorage[testId + '.collectedAnswers'] = collectedAnswers.join("@@@");
 	}
 
-	setTimeout(updateInteface, 500);
+	setTimeout(updateInterface, 500);
 }
 
 function doAnswer(sectionIndex, answerIndex) {
@@ -202,5 +202,5 @@ $(document).ready(function() {
 	$('#test-title').html(testTitle);
 	document.title = testTitle;
 	$('#options-title').html(optionsTitle);
-	updateInteface();
+	updateInterface();
 });
